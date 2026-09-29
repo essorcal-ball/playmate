@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Playmate Clan</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* Explicit white background */
+            color: #111827;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Branding -->
+    <header class="border-b border-gray-100 bg-white sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                    <i class="fa-solid font-bold fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">The Playmate Clan</h1>
+                    <p class="text-xs text-gray-500 font-medium">Official Clan Activity & Level Progression Hub</p>
+                </div>
+            </div>
+            
+            <!-- User Status Header Controls -->
+            <div id="headerUserNav" class="hidden flex items-center gap-3">
+                <span id="navUserName" class="text-sm font-semibold text-gray-700"></span>
+                <span id="navUserBadge" class="text-xs px-2.5 py-1 rounded-full font-bold bg-blue-50 text-blue-700 border border-blue-200"></span>
+                <button onclick="handleLogout()" class="text-xs text-red-600 hover:text-red-700 font-semibold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- System Notification Toast / Alert -->
+        <div id="toast" class="hidden mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between border transition-all">
+            <div class="flex items-center gap-2">
+                <i id="toastIcon" class="fa-solid"></i>
+                <span id="toastMessage"></span>
+            </div>
+            <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- AUTHENTICATION VIEW (Default visible when logged out) -->
+        <div id="authSection" class="max-w-md mx-auto my-6">
+            
+            <!-- Tab Controls -->
+            <div class="flex bg-gray-100 p-1 rounded-xl mb-6">
+                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow-sm text-gray-900 transition">Log In</button>
+                <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition">Create Account</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="bg-white p-6 rounded-2xl border border-gray-200 custom-shadow space-y-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Welcome Back</h2>
+                    <p class="text-xs text-gray-500">Sign in to update your active status in the clan</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">First Name</label>
+                    <input type="text" id="loginFirstName" required placeholder="e.g. Alex" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    <span class="text-[11px] text-gray-400">First name matching is case-insensitive</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+
+                <button type="submit" id="loginSubmitBtn" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    <span>Log In to Clan</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="hidden bg-white p-6 rounded-2xl border border-gray-200 custom-shadow space-y-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Join The Playmate Clan</h2>
+                    <p class="text-xs text-gray-500">Register your membership and start ranking up</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">First Name</label>
+                        <input type="text" id="regFirstName" required placeholder="John" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Last Name</label>
+                        <input type="text" id="regLastName" required placeholder="Doe" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">School</label>
+                    <input type="text" id="regSchool" required placeholder="e.g. West High School" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">State</label>
+                    <input type="text" id="regState" required placeholder="e.g. California" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Choose Password</label>
+                    <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+
+                <button type="submit" id="regSubmitBtn" class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    <span>Create Clan Account</span>
+                    <i class="fa-solid fa-user-plus"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- DASHBOARD VIEW (Shown after login) -->
+        <div id="dashboardSection" class="hidden space-y-8">
+            
+            <!-- User Profile & Level Overview Card -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 custom-shadow">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-2xl shadow-lg">
+                            <span id="userAvatar"></span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 id="dashFullName" class="text-2xl font-bold text-gray-900"></h2>
+                                <span id="dashBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800"></span>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-0.5">
+                                <i class="fa-solid fa-graduation-cap text-gray-400 mr-1"></i> <span id="dashSchool"></span>
+                                <span class="mx-2">•</span>
+                                <i class="fa-solid fa-location-dot text-gray-400 mr-1"></i> <span id="dashState"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Daily Sign-In Button -->
+                    <div class="w-full md:w-auto">
+                        <button id="checkInBtn" onclick="handleCheckIn()" class="w-full md:w-auto px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Sign-In to Track Active Status</span>
+                        </button>
+                        <p id="checkInSubtext" class="text-xs text-center text-gray-400 mt-1.5"></p>
+                    </div>
+                </div>
+
+                <!-- Level Progress & Mechanics Details -->
+                <div class="mt-6 pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <div class="text-xs font-semibold text-gray-500 uppercase">Total Sign-Ins</div>
+                        <div id="dashTotalSignIns" class="text-2xl font-extrabold text-gray-900 mt-1">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <div class="text-xs font-semibold text-gray-500 uppercase">Current Clan Status</div>
+                        <div id="dashRankTitle" class="text-lg font-bold text-blue-600 mt-1">Novice</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <div class="text-xs font-semibold text-gray-500 uppercase">Next Rank Requirement</div>
+                        <div id="dashNextRank" class="text-sm font-semibold text-gray-700 mt-1">--</div>
+                    </div>
+                </div>
+
+                <!-- Level Progress Bar -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1">
+                        <span>Level Progress</span>
+                        <span id="levelProgressPct">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="levelProgressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clan Roster / Leaderboard -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 custom-shadow">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Clan Roster & Activity</h3>
+                        <p class="text-xs text-gray-500">Live active status and levels of all group members</p>
+                    </div>
+                    <span id="rosterCount" class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">0 Members</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                <th class="pb-3 px-2">Member</th>
+                                <th class="pb-3 px-2">School & State</th>
+                                <th class="pb-3 px-2">Clan Status</th>
+                                <th class="pb-3 px-2 text-center">Active Sign-ins</th>
+                                <th class="pb-3 px-2 text-right">Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody" class="divide-y divide-gray-100 text-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 py-6 bg-white mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-gray-400">
+            <p>© The Playmate Clan. Persistent Cloud Connected System.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase Script Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Config and Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'playmate-clan-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "dummy-key",
+            authDomain: "dummy.firebaseapp.com",
+            projectId: "dummy-project",
+            storageBucket: "dummy.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // State Management
+        let currentUserData = null;
+        let unsubscribeRoster = null;
+        let authInitialized = false;
+
+        // Level Ranks Hierarchy
+        const RANKS = [
+            { level: 1, name: "Novice", minSignIns: 0, badgeBg: "bg-gray-100 text-gray-700" },
+            { level: 2, name: "Active Clan Member", minSignIns: 3, badgeBg: "bg-blue-100 text-blue-700" },
+            { level: 3, name: "Veteran", minSignIns: 8, badgeBg: "bg-indigo-100 text-indigo-700" },
+            { level: 4, name: "Clan Leader", minSignIns: 15, badgeBg: "bg-purple-100 text-purple-700" },
+            { level: 5, name: "Elder", minSignIns: 25, badgeBg: "bg-amber-100 text-amber-800" }
+        ];
+
+        // Initialize Cloud Auth
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth error:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                authInitialized = true;
+                subscribeToRoster();
+            }
+        });
+
+        initAuth();
+
+        // Helper: Compute rank based on total sign ins
+        function calculateRank(signInsCount) {
+            let currentRank = RANKS[0];
+            let nextRank = null;
+
+            for (let i = 0; i < RANKS.length; i++) {
+                if (signInsCount >= RANKS[i].minSignIns) {
+                    currentRank = RANKS[i];
+                    nextRank = RANKS[i + 1] || null;
+                }
+            }
+            return { currentRank, nextRank };
+        }
+
+        // Firestore public path helper rule
+        function getClanCollection() {
+            return collection(db, 'artifacts', appId, 'public', 'data', 'members');
+        }
+
+        // --- ACCOUNT CREATION / REGISTER ---
+        window.handleRegister = async function(e) {
+            e.preventDefault();
+            if (!authInitialized) {
+                showToast("Connecting to cloud database, please try again...", "error");
+                return;
+            }
+
+            const firstName = document.getElementById('regFirstName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const school = document.getElementById('regSchool').value.trim();
+            const state = document.getElementById('regState').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            if (!firstName || !lastName || !school || !state || !password) {
+                showToast("Please fill out all fields.", "error");
+                return;
+            }
+
+            const memberKey = firstName.toLowerCase();
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', memberKey);
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    showToast(`A clan member with the first name "${firstName}" already exists!`, "error");
+                    return;
+                }
+
+                const newMemberData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    normalizedFirstName: memberKey,
+                    school: school,
+                    state: state,
+                    password: password, // Note: For production use hash, simple storage used for demo requirements
+                    createdAt: new Date().toISOString(),
+                    lastActive: new Date().toISOString(),
+                    signIns: [new Date().toISOString()],
+                    signInCount: 1
+                };
+
+                await setDoc(docRef, newMemberData);
+                showToast("Account created successfully! Welcome to The Playmate Clan.", "success");
+                loginUser(newMemberData);
+            } catch (err) {
+                console.error("Error creating user:", err);
+                showToast("Failed to create account. Cloud error.", "error");
+            }
+        };
+
+        // --- LOGIN (CASE INSENSITIVE FIRST NAME MATCHING) ---
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            if (!authInitialized) {
+                showToast("Connecting to cloud database, please try again...", "error");
+                return;
+            }
+
+            const firstNameInput = document.getElementById('loginFirstName').value.trim();
+            const passwordInput = document.getElementById('loginPassword').value;
+
+            if (!firstNameInput || !passwordInput) {
+                showToast("Please enter both first name and password.", "error");
+                return;
+            }
+
+            const memberKey = firstNameInput.toLowerCase();
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', memberKey);
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    showToast(`No account found under the first name "${firstNameInput}".`, "error");
+                    return;
+                }
+
+                const userData = docSnap.data();
+                if (userData.password !== passwordInput) {
+                    showToast("Incorrect password.", "error");
+                    return;
+                }
+
+                showToast(`Welcome back, ${userData.firstName}!`, "success");
+                loginUser(userData);
+
+            } catch (err) {
+                console.error("Login error:", err);
+                showToast("Login failed due to cloud connection issue.", "error");
+            }
+        };
+
+        // Logged in session handler
+        function loginUser(userData) {
+            currentUserData = userData;
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('headerUserNav').classList.remove('hidden');
+
+            updateDashboardUI();
+        }
+
+        window.handleLogout = function() {
+            currentUserData = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('headerUserNav').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            showToast("Logged out successfully.", "info");
+        };
+
+        // --- CHECK-IN / ACTIVE STATUS TRACKER ---
+        window.handleCheckIn = async function() {
+            if (!currentUserData) return;
+
+            const memberKey = currentUserData.normalizedFirstName;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', memberKey);
+            const nowIso = new Date().toISOString();
+
+            try {
+                const updatedSignIns = [...(currentUserData.signIns || []), nowIso];
+                const updatedCount = updatedSignIns.length;
+
+                await updateDoc(docRef, {
+                    lastActive: nowIso,
+                    signIns: updatedSignIns,
+                    signInCount: updatedCount
+                });
+
+                currentUserData.lastActive = nowIso;
+                currentUserData.signIns = updatedSignIns;
+                currentUserData.signInCount = updatedCount;
+
+                showToast("Sign-in logged! Your active status in the clan has been updated.", "success");
+                updateDashboardUI();
+
+            } catch (err) {
+                console.error("Check-in error:", err);
+                showToast("Could not update sign-in status.", "error");
+            }
+        };
+
+        // Update Dashboard UI Elements
+        function updateDashboardUI() {
+            if (!currentUserData) return;
+
+            const { firstName, lastName, school, state, signInCount = 1 } = currentUserData;
+            const { currentRank, nextRank } = calculateRank(signInCount);
+
+            // Nav Header
+            document.getElementById('navUserName').textContent = `${firstName} ${lastName}`;
+            document.getElementById('navUserBadge').textContent = currentRank.name;
+
+            // Profile Card
+            document.getElementById('dashFullName').textContent = `${firstName} ${lastName}`;
+            document.getElementById('userAvatar').textContent = firstName.charAt(0).toUpperCase();
+            document.getElementById('dashBadge').textContent = currentRank.name;
+            document.getElementById('dashSchool').textContent = school;
+            document.getElementById('dashState').textContent = state;
+
+            // Stats
+            document.getElementById('dashTotalSignIns').textContent = signInCount;
+            document.getElementById('dashRankTitle').textContent = currentRank.name;
+
+            // Progress Bar & Next Level Calculation
+            if (nextRank) {
+                const reqSignIns = nextRank.minSignIns - currentRank.minSignIns;
+                const currentProgress = signInCount - currentRank.minSignIns;
+                const pct = Math.min(100, Math.floor((currentProgress / reqSignIns) * 100));
+
+                document.getElementById('dashNextRank').textContent = `${nextRank.name} (${nextRank.minSignIns - signInCount} more sign-ins needed)`;
+                document.getElementById('levelProgressBar').style.width = `${pct}%`;
+                document.getElementById('levelProgressPct').textContent = `${pct}%`;
+            } else {
+                document.getElementById('dashNextRank').textContent = "Maximum Rank Reached! (Elder)";
+                document.getElementById('levelProgressBar').style.width = `100%`;
+                document.getElementById('levelProgressPct').textContent = `100%`;
+            }
+        }
+
+        // --- REAL-TIME ROSTER / LEADERBOARD SUBSCRIPTION ---
+        function subscribeToRoster() {
+            const colRef = getClanCollection();
+            
+            unsubscribeRoster = onSnapshot(colRef, (snapshot) => {
+                const members = [];
+                snapshot.forEach((doc) => {
+                    members.push(doc.data());
+                });
+
+                // Sort by active sign ins descending
+                members.sort((a, b) => (b.signInCount || 0) - (a.signInCount || 0));
+
+                renderRoster(members);
+
+                // Update current user if updated elsewhere
+                if (currentUserData) {
+                    const found = members.find(m => m.normalizedFirstName === currentUserData.normalizedFirstName);
+                    if (found) {
+                        currentUserData = found;
+                        updateDashboardUI();
+                    }
+                }
+            }, (err) => {
+                console.error("Roster listening error:", err);
+            });
+        }
+
+        function renderRoster(members) {
+            const tbody = document.getElementById('rosterTableBody');
+            document.getElementById('rosterCount').textContent = `${members.length} Member${members.length === 1 ? '' : 's'}`;
+            tbody.innerHTML = '';
+
+            if (members.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-400">No clan members registered yet.</td></tr>`;
+                return;
+            }
+
+            members.forEach((m) => {
+                const count = m.signInCount || 1;
+                const { currentRank } = calculateRank(count);
+                const lastActiveDate = new Date(m.lastActive || m.createdAt).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-2 font-medium text-gray-900">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                                ${m.firstName.charAt(0).toUpperCase()}
+                            </div>
+                            <span>${m.firstName} ${m.lastName}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-2 text-gray-500 text-xs">${m.school}, ${m.state}</td>
+                    <td class="py-3 px-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${currentRank.badgeBg}">
+                            ${currentRank.name}
+                        </span>
+                    </td>
+                    <td class="py-3 px-2 text-center font-bold text-gray-700">${count}</td>
+                    <td class="py-3 px-2 text-right text-xs text-gray-400">${lastActiveDate}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- UI UTILITIES ---
+        window.switchAuthTab = function(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLoginBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow-sm text-gray-900 transition";
+                tabRegisterBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabRegisterBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow-sm text-gray-900 transition";
+                tabLoginBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition";
+            }
+        };
+
+        function showToast(msg, type = "info") {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = msg;
+            toast.classList.remove('hidden', 'bg-red-50', 'text-red-800', 'border-red-200', 'bg-green-50', 'text-green-800', 'border-green-200', 'bg-blue-50', 'text-blue-800', 'border-blue-200');
+
+            if (type === 'error') {
+                toast.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-500";
+            } else if (type === 'success') {
+                toast.classList.add('bg-green-50', 'text-green-800', 'border-green-200');
+                toastIcon.className = "fa-solid fa-circle-check text-green-500";
+            } else {
+                toast.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                toastIcon.className = "fa-solid fa-circle-info text-blue-500";
+            }
+        }
+
+        window.hideToast = function() {
+            document.getElementById('toast').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
